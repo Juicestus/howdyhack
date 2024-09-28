@@ -1,0 +1,47 @@
+{
+  "name": "howdyhack-server",
+  "version": "1.0",
+  "private": true,
+  "author": "Justus Languell",
+  "license": "MIT", 
+  "dependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.16.7",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/cors": "^2.8.13",
+    "@types/jest": "^27.5.2",
+    "@types/node": "^16.11.65",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "firebase": "^9.23.0",
+    "firebase-admin": "^11.10.1",
+    "typescript": "^4.8.4"
+  },
+  "scripts": {
+    "build": "tsc",
+    "serve": "node build/src/index.js",
+    "full": "tsc && node build/src/index.js"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "engines": {
+    "node": "16"
+  }
+}
