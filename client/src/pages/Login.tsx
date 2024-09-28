@@ -10,7 +10,7 @@ import { redirect, useBeforeUnload, useNavigate } from "react-router-dom";
 // import {Input} from "@nextui-org/react";
 // import { Input } from "@material-tailwind/react";
 
-import { auth, getErrorMsg } from "../FirebaseClient"
+import { auth } from "../FirebaseClient"
 
 export default () => {
 
@@ -22,13 +22,11 @@ export default () => {
 
     try {
       await auth.signInWithEmailAndPassword(email , password);
+
+      console.log(auth.currentUser);
     } catch (error: any) {
       alert(error.message);
     }
-  };
-
-  const signOut = async () => {
-    await auth.signOut();
   };
 
   const navigate = useNavigate();

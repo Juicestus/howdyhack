@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 
 import { ThemeProvider } from "@material-tailwind/react";
 import SignUp from "./pages/Create";
+import Dashboard from "./pages/Dashboard";
 
 
 const root = ReactDOM.createRoot(
@@ -16,16 +17,17 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <AuthProvider>
       <ThemeProvider>
         <Router>
+        <AuthProvider>
           <Routes>
             <Route path="/" element={<Home />} /> 
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
+            <Route path="/dashboard" element={<Dashboard />} />
           </Routes>
+    </AuthProvider>
         </Router>
       </ThemeProvider>
-    </AuthProvider>
   </React.StrictMode>
 );

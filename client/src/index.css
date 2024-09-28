@@ -13,6 +13,11 @@ label {
   color: black !important;
 }
 
+h1 { 
+  font-size: 2rem;
+  font-weight: bold !important;
+}
+
 a {
   color: black;
 }
@@ -22,6 +27,10 @@ a {
     width: 100%;
   }
 
-.form-lbl {
-  font-size: .8rem;
+.logout-btn {
+  width: 6rem;
+  height: 2rem;
+  font-size: .5rem;
+  margin: 1rem;
+  padding: -1rem 0rem;
 }

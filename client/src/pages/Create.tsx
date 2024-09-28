@@ -10,7 +10,7 @@ import { redirect, useBeforeUnload, useNavigate } from "react-router-dom";
 // import {Input} from "@nextui-org/react";
 // import { Input } from "@material-tailwind/react";
 
-import { auth, getErrorMsg } from "../FirebaseClient"
+import { auth, createUserDB } from "../FirebaseClient"
 
 export default () => {
 
@@ -26,6 +26,15 @@ export default () => {
   const createAccount = async () => {
     try {
       await auth.createUserWithEmailAndPassword(email , password);
+
+      if (auth.currentUser) {
+        createUserDB(auth.currentUser?.uid);
+      } else {
+        console.log("Oh shit!")
+
+      }
+
+
     } catch (error: any) {
       alert(error.message);
     }
