@@ -30,6 +30,10 @@ import Check from "@mui/icons-material/Check";
 
 type Anchor = 'left';
 
+ export const sortfn = (a: string, b: string) => {
+    return parseFloat(a.split(' ')[0]) - parseFloat(b.split(' ')[0]); // danger ):
+  }
+
 export const SidebarDrawer = () => {
 
   const navigate = useNavigate();
@@ -60,9 +64,7 @@ export const SidebarDrawer = () => {
         setIsOpen(open);
       };
 
-  const sortfn = (a: string, b: string) => {
-    return parseFloat(a.split(' ')[0]) - parseFloat(b.split(' ')[0]); // danger ):
-  }
+ 
 
   const topicIcon = (t: Topic) => {
     let allLocked = true;

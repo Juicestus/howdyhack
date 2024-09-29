@@ -1,11 +1,11 @@
 // import Header from "../components/Header";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { Button, Card, Col, Container, Form, OverlayTrigger, Popover, Row, Table } from "react-bootstrap";
-import { Navigate, useBeforeUnload } from "react-router-dom";
+import { Navigate, useBeforeUnload, useNavigate } from "react-router-dom";
 
 import { auth, getUserDB } from "../FirebaseClient";
 import { AuthContext } from "../components/AuthContext";
-import { SidebarDrawer } from "../components/SidebarDrawer";
+import { SidebarDrawer, sortfn } from "../components/SidebarDrawer";
 import { CircularProgressWithLabel } from "../components/CircularProgressWithLabel";
 import { IconButton } from "@mui/material";
 import { Topics } from "../data/Types";
@@ -15,6 +15,8 @@ import { Topics } from "../data/Types";
 export default () => {
 
   const user = useContext(AuthContext);
+
+  const navigate = useNavigate();
 
   const signOut = async () => {
     await auth.signOut();
@@ -43,6 +45,17 @@ export default () => {
       return (completed/total) * 100;
   }
 
+  const handleLeftOff = (d: Topics) => {
+    return () => {
+      Object.keys(d).sort(sortfn).map(k => {
+        Object.keys(d[k].subtopics).map(sk => {
+          if (!d[k].subtopics[sk].completed && !d[k].subtopics[sk].locked) {
+            navigate('/learn/' + k.replaceAll(' ', '-') + '/' + sk.replaceAll(' ', '-'));
+          }
+        });
+      });
+    }
+  }
 
   return (
     <>
@@ -70,7 +83,7 @@ export default () => {
                 <br></br>
                 <br></br>
 
-                <Button variant="outline-success" type="button" size="sm" className="" onClick={undefined}>
+                <Button variant="outline-success" type="button" size="sm" className="" onClick={handleLeftOff(topicTree)}>
                   Pick up where you left off
                 </Button>
               </Col>
