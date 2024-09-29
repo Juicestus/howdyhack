@@ -1,3 +1,0 @@
-[ ] add favicon.ico to client/public
-[ ] data/Types.tsx ???
-
