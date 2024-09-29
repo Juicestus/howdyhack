@@ -5,7 +5,7 @@ import { Navigate, useBeforeUnload, useNavigate, useParams } from "react-router-
 
 import { auth, getTopic, getUserDB, updateSubtopic } from "../FirebaseClient";
 import { AuthContext } from "../components/AuthContext";
-import { AnchorTemporaryDrawer } from "../components/AnchorTemporaryDrawer";
+import { SidebarDrawer } from "../components/SidebarDrawer";
 import { CircularProgressWithLabel } from "../components/CircularProgressWithLabel";
 import { IconButton } from "@mui/material";
 import { State, Subtopic, Topic, Topics } from "../data/Types";
@@ -15,6 +15,7 @@ import ReactMarkdown from 'react-markdown';
 import Ok from "../components/Ok";
 import Mcq from "../components/Mcq";
 import Editor from "../components/Editor";
+import Loading from "../components/Loading";
 
 
 export default () => {
@@ -36,7 +37,7 @@ export default () => {
   const [currentTaskID, setCurrentTaskID] = useState(-1);
   const [fsmState, setFsmState] = useState(State.DECIDING_TASKS);
   const [mcqAnswers, setMcqAnswers] = useState<string[]>([]);
-
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
 
@@ -59,7 +60,8 @@ export default () => {
             return;
           }
 
-          setMarkdown("# Learn " + topic.subtopics[subtopicName].name);
+          // setMarkdown("### " + topic.subtopics[subtopicName].name);
+          beginLoading();
 
           if (topic.subtopics[subtopicName].locked) {
             navigate('/');
@@ -81,9 +83,6 @@ export default () => {
                     });
                     i++;
                   }
-                  console.log(topic.subtopics[subtopicName].tasks);
-
-                  updateSubtopic(user.uid, topicName, subtopicName, topic.subtopics[subtopicName]);
 
                   let newMarkdown = "\n\n" + "The topics you will learn in this section are: \n\n";
                   for (const tkey in topic.subtopics[subtopicName].tasks) {
@@ -91,6 +90,8 @@ export default () => {
                   }
                   setMarkdown(newMarkdown);
                   setSubtopicTree(topic.subtopics[subtopicName]);
+
+                  setFsmState(State.EXPLAINING_TASKS);
                 });
               });
             });
@@ -112,56 +113,89 @@ export default () => {
 
   }, [user, setSubtopicTree, setThreadID, setMarkdown, setControlWidget, setFsmState]);
 
+  const beginLoading = () => {
+    console.log("Begin loading");
+    setIsLoading(true);
+    setControlWidget(<></>);
+    // setControlWidget(<Loading/>);
+  };
+
+  const stopLoading = () => {
+    setIsLoading(false);
+    console.log("Stop loading");
+  }
+
   useEffect(() => {
+
     if (fsmState === State.EXPLAINING_TASKS) {
       setControlWidget(<Ok onClick={() => {
+        beginLoading();
         explainTask();
-        setControlWidget(<></>)
       }} />);
     }
     if (fsmState === State.ASKING_QUESTION) {
       setControlWidget(<Ok onClick={() => {
+        beginLoading();
         askQuestion();
-        setControlWidget(<></>)
       }} />);
     }
     if (fsmState === State.CHECKING_RESPONSE_MCQ) {
       setControlWidget(<Mcq onClick={(answer: string) => {
+        beginLoading();
         checkAnswer(answer);
-        setControlWidget(<></>)
       }} options={mcqAnswers} />);
     }
     if (fsmState === State.CHECKING_RESPONSE_CODE) {
       setControlWidget(<Editor onClick={(answer: string) => {
+        beginLoading();
         checkAnswer(answer);
-        setControlWidget(<></>)
       }}/>);
     }
     if (fsmState === State.GIVING_FEEDBACK_POS) {
       setControlWidget(<Ok onClick={() => {
+        beginLoading();
         explainTask();
-        setControlWidget(<></>)
       }} />);
     }
     if (fsmState === State.GIVING_FEEDBACK_NEG) {
       setControlWidget(<Ok onClick={() => {
+        beginLoading();
         askQuestion();
-        setControlWidget(<></>)
       }} />);
     }
     if (fsmState === State.MODULE_COMPLETE) {
       setControlWidget(<Ok onClick={() => {
+        beginLoading();
         navigate('/dashboard');
-        setControlWidget(<></>)
       }} />);
     }
     
   }, [fsmState, mcqAnswers]);
 
 
-  const explainTask = () => {
+  const explainTask = async () => {
     if (!subtopicTree) { return; }
     if (currentTaskID >= (subtopicTree.tasks.length - 1)) {
+      const sttlocal = subtopicTree;
+      sttlocal.completed = true;
+      if (user) {
+        await updateSubtopic(user.uid, topicName || "", subtopicName || "", sttlocal);
+
+        // Unlock the next one
+        let unlocked = false;
+        getUserDB(user.uid).then(d => {
+          stopLoading();
+          Object.keys(d).map(k => {
+            Object.keys(d[k].subtopics).map(sk => {
+              if (!unlocked && d[k].subtopics[sk].locked) { /// sinful
+                d[k].subtopics[sk].locked = false;
+                unlocked = true;
+              }
+            });
+          });
+        });
+      }
+      setMarkdown("### Congratulations! \n\n You completed the module.")
       setFsmState(State.MODULE_COMPLETE);
       return;
     }
@@ -169,6 +203,7 @@ export default () => {
     sendMessage(threadID, explainTaskPrompt(subtopicTree.tasks[taskID].name)).then(() => {
       beginResponse(threadID).then(run => {
         getResult(run, threadID).then(r => {
+          stopLoading();
           const exp = JSON.parse(r)["explanation"];
           let newMarkdown = "\n\n" + exp;
           setMarkdown(newMarkdown);
@@ -184,6 +219,7 @@ export default () => {
     sendMessage(threadID, askQuestionPrompt(subtopicTree.tasks[currentTaskID].name, subtopicTree.tasks[currentTaskID].type)).then(() => {
       beginResponse(threadID).then(run => {
         getResult(run, threadID).then(r => {
+          stopLoading();
           if (subtopicTree.tasks[currentTaskID].type === "multiple-choice") {
             const j = JSON.parse(r);
             setMcqAnswers(j["responses"]);
@@ -204,6 +240,7 @@ export default () => {
     sendMessage(threadID, checkAnswerPrompt(response)).then(() => {
       beginResponse(threadID).then(run => {
         getResult(run, threadID).then(r => {
+          stopLoading();
           const j = JSON.parse(r);
           const correct = j["correct"];
           const feedback = j["feedback"];
@@ -226,7 +263,7 @@ export default () => {
       {/* {user && topicName && subtopicName && !subtopicTree[topicName].subtopics[subtopicName].locked && <Navigate></Navigate>} */}
 
       {/* <IconButton onClick={() => {}} sx={{ position: "fixed", top: 0, left: 0, zIndex: 2000 }}><MenuIcon/></IconButton> */}
-      <AnchorTemporaryDrawer />
+      <SidebarDrawer />
 
       {/* <Header fluid/> */}
 
@@ -240,7 +277,11 @@ export default () => {
               <Card.Header>Module {subtopicName?.split(' ')[0] || "0.0"} - {topicName?.split(' ').slice(1).join(" ") || "..."} - {subtopicName?.split(' ').slice(1).join(" ") || "..."}</Card.Header>
 
               <Card.Body style={{ height: '25.5rem', overflowY: 'auto' }}>
-                <ReactMarkdown className="rmd">{markdown}</ReactMarkdown>
+                {
+                  isLoading 
+                  ? (<Loading/>)
+                  : (<ReactMarkdown className="rmd">{markdown}</ReactMarkdown>)
+                }
 
               </Card.Body>
             </Card>

@@ -76,7 +76,7 @@ a {
 }
 
 .code-editor {
-  height: 20rem;
+  height: 23rem;
   font-family: monospace;
   font-size: 14;
   border-radius: .1rem;
@@ -88,4 +88,13 @@ a {
 
 .code-editor textarea:focus {
   outline: none !important;
+}
+
+.ctr-container {
+  display: flex;
+  padding-top: 25%;
+  padding-bottom: 50%;
+  /* padding-top: 50%; */
+  justify-content: center;
+  align-items: center;
 }

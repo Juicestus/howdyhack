@@ -5,7 +5,7 @@ import { Navigate, useBeforeUnload } from "react-router-dom";
 
 import { auth, getUserDB } from "../FirebaseClient";
 import { AuthContext } from "../components/AuthContext";
-import { AnchorTemporaryDrawer } from "../components/AnchorTemporaryDrawer";
+import { SidebarDrawer } from "../components/SidebarDrawer";
 import { CircularProgressWithLabel } from "../components/CircularProgressWithLabel";
 import { IconButton } from "@mui/material";
 import { Topics } from "../data/Types";
@@ -48,7 +48,7 @@ export default () => {
     <>
 
     {/* <IconButton onClick={() => {}} sx={{ position: "fixed", top: 0, left: 0, zIndex: 2000 }}><MenuIcon/></IconButton> */}
-    <AnchorTemporaryDrawer/>
+    <SidebarDrawer/>
       
       {/* <Header fluid/> */}
 

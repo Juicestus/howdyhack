@@ -28,7 +28,7 @@ import { useNavigate } from "react-router-dom";
 
 type Anchor = 'left';
 
-export function AnchorTemporaryDrawer() {
+export const SidebarDrawer = () => {
 
   const navigate = useNavigate();
 
@@ -68,19 +68,18 @@ export function AnchorTemporaryDrawer() {
     for (const key in t.subtopics) {
       if (!t.subtopics[key].locked) {
         allLocked = false;
-        break;
       }
       if (t.subtopics[key].completed) {
-        allLocked = true;
-        break;
+        allCompleted = true;
       }
-    }
-    if (allLocked) {
-      return <LockIcon />;
     }
     if (allCompleted) {
       return <CheckCircleOutlineIcon />;
     }
+    if (allLocked) {
+      return <LockIcon />;
+    }
+    
     return <AccessTimeIcon />;
   }
 
@@ -106,7 +105,7 @@ export function AnchorTemporaryDrawer() {
 
   const list = (anchor: Anchor) => (
     <Box
-      sx={{ width: 250 }}
+      sx={{ width: '20rem' }}
       role="presentation"
       // onClick={toggleDrawer(anchor, false)}
       onKeyDown={toggleDrawer(anchor, false)}

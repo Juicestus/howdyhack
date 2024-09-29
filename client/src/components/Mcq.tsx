@@ -13,6 +13,7 @@ export default ({ onClick, options }: { onClick: any, options: string[] }) => {
           <Form.Check
             checked={answer === opt}
             type={'radio'}
+            style={{ marginLeft: '.5rem'}}
             onClick={() => setAnswer(opt)}
           />
         </Col>
