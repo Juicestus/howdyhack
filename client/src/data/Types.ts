@@ -4,7 +4,8 @@ export enum State {
   DECIDING_TASKS = "Deciding Tasks",
   EXPLAINING_TASKS = "Explaining Tasks",
   ASKING_QUESTION = "Asking Questions",
-  CHECKING_RESPONSE = "Checking Response",
+  CHECKING_RESPONSE_MCQ = "Checking Response (MCQ)",
+  CHECKING_RESPONSE_CODE = "Checking Response (Code)",
   GIVING_FEEDBACK_NEG = "Giving Feedback (Correct)",
   GIVING_FEEDBACK_POS = "Giving Feedback (Incorrect)",
   MODULE_COMPLETE = "Module Completed"

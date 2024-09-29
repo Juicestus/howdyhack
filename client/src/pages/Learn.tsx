@@ -14,6 +14,7 @@ import { askQuestionPrompt, beginResponse, checkAnswerPrompt, createThread, expl
 import ReactMarkdown from 'react-markdown';
 import Ok from "../components/Ok";
 import Mcq from "../components/Mcq";
+import Editor from "../components/Editor";
 
 
 export default () => {
@@ -124,11 +125,17 @@ export default () => {
         setControlWidget(<></>)
       }} />);
     }
-    if (fsmState === State.CHECKING_RESPONSE) {
+    if (fsmState === State.CHECKING_RESPONSE_MCQ) {
       setControlWidget(<Mcq onClick={(answer: string) => {
         checkAnswer(answer);
         setControlWidget(<></>)
       }} options={mcqAnswers} />);
+    }
+    if (fsmState === State.CHECKING_RESPONSE_CODE) {
+      setControlWidget(<Editor onClick={(answer: string) => {
+        checkAnswer(answer);
+        setControlWidget(<></>)
+      }}/>);
     }
     if (fsmState === State.GIVING_FEEDBACK_POS) {
       setControlWidget(<Ok onClick={() => {
@@ -177,18 +184,18 @@ export default () => {
     sendMessage(threadID, askQuestionPrompt(subtopicTree.tasks[currentTaskID].name, subtopicTree.tasks[currentTaskID].type)).then(() => {
       beginResponse(threadID).then(run => {
         getResult(run, threadID).then(r => {
-
           if (subtopicTree.tasks[currentTaskID].type === "multiple-choice") {
             const j = JSON.parse(r);
             setMcqAnswers(j["responses"]);
             setMarkdown("\n\n### Multiple choice question\n\n" + j["question"]);
+            setFsmState(State.CHECKING_RESPONSE_MCQ);
           } else {
             const prompt = JSON.parse(r)["prompt"];
             setMarkdown("\n\n" + prompt);
+            setFsmState(State.CHECKING_RESPONSE_CODE);
           }
         });
       });
-      setFsmState(State.CHECKING_RESPONSE);
     });
   }
 

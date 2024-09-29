@@ -9,7 +9,7 @@ export default ({ onClick, options }: { onClick: any, options: string[] }) => {
     <>
       {options.map((opt) => (<Row>
 
-        <Col xs={2}>
+        <Col xs={1}>
           <Form.Check
             checked={answer === opt}
             type={'radio'}
@@ -17,7 +17,7 @@ export default ({ onClick, options }: { onClick: any, options: string[] }) => {
           />
         </Col>
 
-        <Col xs={10}>
+        <Col xs={11}>
           {opt}
         </Col>
       </Row>

@@ -72,4 +72,20 @@ a {
 
 .ok-btn {
   width: 4rem;
+  margin: .5rem;
+}
+
+.code-editor {
+  height: 20rem;
+  font-family: monospace;
+  font-size: 14;
+  border-radius: .1rem;
+}
+
+.code-editor textarea {
+  outline: none !important;
+}
+
+.code-editor textarea:focus {
+  outline: none !important;
 }
