@@ -67,13 +67,13 @@ export const getResult = async (run: any, thread: any) => {
   }
 };
 
-export const getTasksPrompt = (subtopicName: string) => `Consider a student following your curriculum to learn Python. Please make a list of subtopics you would teach for "${subtopicName}". You can list as many or as few items as required for the topic as required. For each of these topics, consider if it would be better suited for either a multiple choice question or a coding challenge. Remember that introductory syntax topics are usually more suited for multiple choice questions. Return your list as a json object where the keys are these topics, and the values are either "multiple-choice" or "coding-challenge" representing what type of question best suits the topic.`;
+export const getTasksPrompt = (subtopicName: string) => `Consider a student following your curriculum to learn Python. Please make a list of subtopics you would teach for "${subtopicName}". Please make between 3 and 7, depending on the complexity of the subject. For each of these topics, consider if it would be better suited for either a multiple choice question or a coding challenge. Make sure to have roughly equal number of multiple choice and coding challenge questions. Remember that introductory syntax topics are usually more suited for multiple choice questions. Return your list as a json object where the keys are these topics, and the values are either "multiple-choice" or "coding-challenge" representing what type of question best suits the topic.`;
 
 export const explainTaskPrompt = (taskName: string) => `For the topic "${taskName}" give an explanation of the topic for Python. Encode in a json object with a single entry called "explanation" where the value is your explanation in a string. Your explaination will be treated as markdown, so feel free to use markdown syntax.`;
 
 export const askQuestionPrompt = (taskName: string, qType: string) => {
   if (qType === "multiple-choice") {
-    return `In Python, for the topic "${taskName}" create a multiple choice question with 4 possible responses. Format this question in json structure, where key "question" is the question as a string, and key "responses" holds an array of strings, representing the possible responses. Please do not include labels like A, B, C, D, etc. in the responses.`;
+    return `In Python, for the topic "${taskName}" create a multiple choice question with 4 possible responses. Format this question in json structure, where key "question" is the question as a string, and key "responses" holds an array of strings, representing the possible responses. Please do not include labels like A, B, C, D, etc. in the responses. You may use inline markdown in your question and answer choices.`;
   } else {
     return `In Python, please write a coding challenge for the topic "${taskName}" for the student to answer. Format your response as a json object with a single entry "prompt" where the value is your challenge as a string. Make sure to give your question a markdown title.`; 
   }

@@ -82,7 +82,7 @@ a {
 }
 
 .code-editor {
-  height: 23rem;
+  height: 25rem;
   font-family: monospace;
   font-size: 14;
   border-radius: .1rem;
@@ -114,4 +114,10 @@ a {
   margin-top: 1.65rem;
   margin-bottom: 2rem;
   margin-left: 4rem;
+}
+
+
+.scroll-mcq {
+  overflow-y:auto;
+  height: 25rem;
 }

@@ -3,9 +3,9 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import { Button, Card, Col, Container, Form, OverlayTrigger, Popover, Row, Table } from "react-bootstrap";
 import { Navigate, useBeforeUnload, useLocation, useNavigate, useParams } from "react-router-dom";
 
-import { auth, getTopic, getUserDB, updateSubtopic } from "../FirebaseClient";
+import { auth, getTopic, getUserDB, updateTopic } from "../FirebaseClient";
 import { AuthContext } from "../components/AuthContext";
-import { SidebarDrawer } from "../components/SidebarDrawer";
+import { SidebarDrawer, sortfn } from "../components/SidebarDrawer";
 import { CircularProgressWithLabel } from "../components/CircularProgressWithLabel";
 import { IconButton } from "@mui/material";
 import { State, Subtopic, Topic, Topics } from "../data/Types";
@@ -16,6 +16,7 @@ import Ok from "../components/Ok";
 import Mcq from "../components/Mcq";
 import Editor from "../components/Editor";
 import Loading from "../components/Loading";
+import { CircularProgressWithLabelAbsoluteSmall } from "../components/CircularProgressWithLabelAbsoluteSmall";
 
 
 export default () => {
@@ -27,7 +28,7 @@ export default () => {
   const [subtopicTree, setSubtopicTree] = useState<Subtopic>();
 
   const topicName = useParams().topicName?.replaceAll('-', ' ');
-  const subtopicName = useParams().subtopicName?.replaceAll('-', ' ');
+  const subtopicName = useParams().subtopicName?.replaceAll('-', ' ').replaceAll('_', '/');
 
   const navigate = useNavigate();
 
@@ -38,6 +39,7 @@ export default () => {
   const [fsmState, setFsmState] = useState(State.DECIDING_TASKS);
   const [mcqAnswers, setMcqAnswers] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [numberOfTasks, setNumberOfTasks] = useState<number>(1.0);
 
   const location = useLocation();
 
@@ -76,7 +78,13 @@ export default () => {
             sendMessage(thread, getTasksPrompt(topic.subtopics[subtopicName].name)).then(() => {
               beginResponse(thread).then(run => {
                 getResult(run, thread).then(r => {
-                  const j = JSON.parse(r);
+                  let j = null;
+                  try {
+                    j = JSON.parse(r);
+                  } catch (error) {
+
+                    console.error("Error parsing JSON:", error);
+                  }
                   let i = 0;
                   for (const tkey in j) {
                     topic.subtopics[subtopicName].tasks.push({
@@ -88,15 +96,21 @@ export default () => {
                     i++;
                   }
 
+                  let n = 0;
                   let newMarkdown = "\n\n" + "The topics you will learn in this section are: \n\n";
                   for (const tkey in topic.subtopics[subtopicName].tasks) {
                     newMarkdown += `* ${topic.subtopics[subtopicName].tasks[tkey].name}\n`;
+                    n++;
                   }
+                  setNumberOfTasks(n);
                   setMarkdown(newMarkdown);
                   setSubtopicTree(topic.subtopics[subtopicName]);
 
-                  stopLoading();
-                  setFsmState(State.EXPLAINING_TASKS);
+                  // forigve thee
+                  setTimeout(() => {
+                    stopLoading();
+                    setFsmState(State.EXPLAINING_TASKS);
+                  }, 1000);
                 });
               });
             });
@@ -104,9 +118,12 @@ export default () => {
           else {
 
             let newMarkdown = "\n\n" + "The topics you will learn in this section are: \n\n";
+            let n = 0;
             for (const tkey in topic.subtopics[subtopicName].tasks) {
               newMarkdown += `* ${topic.subtopics[subtopicName].tasks[tkey].name}\n`;
+              n++;
             }
+            setNumberOfTasks(n);
             setMarkdown(newMarkdown);
             setSubtopicTree(topic.subtopics[subtopicName]);
 
@@ -121,10 +138,11 @@ export default () => {
   }, [user, setSubtopicTree, setThreadID, setMarkdown, setControlWidget, setFsmState, location]);
 
   useBeforeUnload(useCallback(async () => {
-    if (user !== undefined && topicName !== undefined && subtopicName !== undefined) {
-      await updateSubtopic(user?.uid || "", topicName || "", subtopicName || "", subtopicTree);
-       // bruh too much safety for something that really cant happen
-    }
+    console.log("beforeUnload")
+    // if (user !== undefined && topicName !== undefined && subtopicName !== undefined) {
+    //   await updateSubtopic(user?.uid || "", topicName || "", subtopicName || "", subtopicTree);
+    //   // bruh too much safety for something that really cant happen
+    // }
   }, [subtopicTree, user]));
 
   const beginLoading = () => {
@@ -163,7 +181,7 @@ export default () => {
       setControlWidget(<Editor onClick={(answer: string) => {
         beginLoading();
         checkAnswer(answer);
-      }}/>);
+      }} />);
     }
     if (fsmState === State.GIVING_FEEDBACK_POS) {
       setControlWidget(<Ok onClick={() => {
@@ -183,9 +201,8 @@ export default () => {
         navigate('/dashboard');
       }} />);
     }
-    
-  }, [fsmState, mcqAnswers]);
 
+  }, [fsmState, mcqAnswers]);
 
   const explainTask = async () => {
     beginLoading();
@@ -195,22 +212,31 @@ export default () => {
       sttlocal.completed = true;
       sttlocal.taskid = -1;
       if (user) {
-        await updateSubtopic(user.uid, topicName || "", subtopicName || "", sttlocal);
+        setCurrentTaskID(currentTaskID + 1);
+        getTopic(user.uid, topicName || "").then((topic) => {
+          if (!topic) { return; }
+          topic.subtopics[subtopicName || ""] = sttlocal;
 
-        // Unlock the next one
-        let unlocked = false;
-        getUserDB(user.uid).then(d => {
-          Object.keys(d).map(k => {
-            Object.keys(d[k].subtopics).map(sk => {
-              if (!unlocked && d[k].subtopics[sk].locked) { /// sinful
-                d[k].subtopics[sk].locked = false;
-                unlocked = true;
-              }
+          updateTopic(user.uid, topicName || "", topic).then(() => {
+
+            // Unlock the next one
+            let unlocked = false;
+            getUserDB(user.uid).then(d => {
+              Object.keys(d).sort(sortfn).map(k => {
+                Object.keys(d[k].subtopics).sort(sortfn).map(sk => {
+                  if (!unlocked && d[k].subtopics[sk].locked) { /// sinful
+                    d[k].subtopics[sk].locked = false;
+                    unlocked = true;
+                    updateTopic(user.uid, k || "", d[k]).then(() => {});
+                  }
+                });
+              });
             });
           });
         });
       }
       setMarkdown("### Congratulations! \n\n You completed the module.")
+      stopLoading();
       setFsmState(State.MODULE_COMPLETE);
       return;
     }
@@ -227,7 +253,7 @@ export default () => {
           setFsmState(State.ASKING_QUESTION);
         });
       });
-     
+
     });
   }
 
@@ -263,9 +289,9 @@ export default () => {
           const feedback = j["feedback"];
           setMarkdown("\n\n" + feedback);
           if (correct) {
-            setFsmState(State.GIVING_FEEDBACK_POS); 
+            setFsmState(State.GIVING_FEEDBACK_POS);
           } else {
-            setFsmState(State.GIVING_FEEDBACK_NEG); 
+            setFsmState(State.GIVING_FEEDBACK_NEG);
           }
         });
       });
@@ -278,6 +304,7 @@ export default () => {
     <>
 
       <SidebarDrawer />
+      <CircularProgressWithLabelAbsoluteSmall value={Math.min(((currentTaskID + 1.0) / (numberOfTasks + 1.0)) * 100, 100)} />
 
       {/* <h2 className="lernhead">Module {subtopicName?.split(' ')[0] || "0.0"} - {topicName?.split(' ').slice(1).join(" ") || "..."} - {subtopicName?.split(' ').slice(1).join(" ") || "..."}</h2> */}
 
@@ -292,12 +319,12 @@ export default () => {
             <Card className="ml-2">
               <Card.Header>Module {subtopicName?.split(' ')[0] || "0.0"} - {topicName?.split(' ').slice(1).join(" ") || "..."} - {subtopicName?.split(' ').slice(1).join(" ") || "..."}</Card.Header>
 
-              <Card.Body style={{ height: '25.5rem', overflowY: 'auto' }}>
-              {/* <Card.Body style={{ height: '28rem', overflowY: 'auto' }}> */}
+              <Card.Body style={{ height: '27.5rem', overflowY: 'auto' }}>
+                {/* <Card.Body style={{ height: '28rem', overflowY: 'auto' }}> */}
                 {
-                  isLoading 
-                  ? (<Loading/>)
-                  : (<ReactMarkdown className="rmd">{markdown}</ReactMarkdown>)
+                  isLoading
+                    ? (<Loading />)
+                    : (<ReactMarkdown className="rmd">{markdown}</ReactMarkdown>)
                 }
 
               </Card.Body>
@@ -306,7 +333,7 @@ export default () => {
 
           <Col xs={6}>
             <Card className="mr-2">
-              <Card.Body style={{ height: '28rem', overflowY: 'auto' }}>
+              <Card.Body style={{ height: '30rem', overflowY: 'auto' }}>
                 {/* {JSON.stringify(subtopicTree ?? "")} */}
                 {controlWidget}
               </Card.Body>

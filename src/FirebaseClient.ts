@@ -45,10 +45,15 @@ export const getTopic = async (uid: string, topicName: string) => {
   return (await db.collection(uid).doc(topicName).get()).data();
 }
 
-export const updateSubtopic = async (uid: string, topicName: string, subtopicName: string, updatedSubtopic: any) => {
-  await db.collection(uid).doc(topicName).update({
-    subtopics: {
-      [subtopicName]: updatedSubtopic
-    }
-  });
+export const updateTopic = async (uid: string, topicName: string, updatedTopic: any) => {
+  await db.collection(uid).doc(topicName).update(updatedTopic);
 }
+
+// export const updateSubtopic = async (uid: string, topicName: string, subtopicName: string, updatedSubtopic: any) => {
+//   await db.collection(uid).doc(topicName).update({
+//     subtopics: {
+//       ...subtopics,
+//       [subtopicName]: updatedSubtopic
+//     }
+//   });
+// }

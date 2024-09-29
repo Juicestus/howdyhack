@@ -150,7 +150,7 @@ export const SidebarDrawer = () => {
                       setError("This subtopic is locked.");
                       return;
                     }
-                    navigate('/learn/' + key.replaceAll(' ', '-') + '/' + key2.replaceAll(' ', '-'), {});
+                    navigate('/learn/' + key.replaceAll(' ', '-') + '/' + key2.replaceAll(' ', '-').replaceAll('/', '_'));
                   }}>
                     <ListItemIcon>
                       {subtopicIcon(topicTree[key].subtopics[key2])}

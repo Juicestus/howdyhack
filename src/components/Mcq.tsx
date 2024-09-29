@@ -1,13 +1,15 @@
 
 import React from "react";
 import { Button, Card, Col, Container, Form, OverlayTrigger, Popover, Row, Table } from "react-bootstrap";
+import ReactMarkdown  from 'react-markdown';
 export default ({ onClick, options }: { onClick: any, options: string[] }) => {
 
   const [answer, setAnswer] = React.useState<string>("");
 
   return (
     <>
-      <div style={{height: '23rem'}}>
+      {/* <div className="scroll-mcq" style={{height: '23rem'}}> */}
+      <div className="scroll-mcq">
         {options.map((opt) => (<Row>
 
           <Col xs={1}>
@@ -20,7 +22,7 @@ export default ({ onClick, options }: { onClick: any, options: string[] }) => {
           </Col>
 
           <Col xs={11}>
-            {opt}
+            <ReactMarkdown>{opt}</ReactMarkdown>
           </Col>
         </Row>
         ))}

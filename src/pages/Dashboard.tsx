@@ -50,7 +50,7 @@ export default () => {
       Object.keys(d).sort(sortfn).map(k => {
         Object.keys(d[k].subtopics).map(sk => {
           if (!d[k].subtopics[sk].completed && !d[k].subtopics[sk].locked) {
-            navigate('/learn/' + k.replaceAll(' ', '-') + '/' + sk.replaceAll(' ', '-'));
+            navigate('/learn/' + k.replaceAll(' ', '-') + '/' + sk.replaceAll(' ', '-').replaceAll('/', '_'));
           }
         });
       });
