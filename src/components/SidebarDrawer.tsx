@@ -1,7 +1,7 @@
 import React from "react";
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
-import Button from '@mui/material/Button';
+// import Button from '@mui/material/Button';
 import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
 import ListItem from '@mui/material/ListItem';
@@ -21,7 +21,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import CheckIcon from '@mui/icons-material/Check';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import { ListGroup } from "react-bootstrap";
+import { Button, ListGroup, Modal } from "react-bootstrap";
 import LogoutIcon from '@mui/icons-material/Logout';
 import HomeIcon from '@mui/icons-material/Home';
 import { useNavigate } from "react-router-dom";
@@ -35,6 +35,8 @@ type Anchor = 'left';
   }
 
 export const SidebarDrawer = () => {
+
+  const [error, setError] = React.useState<string>("");
 
   const navigate = useNavigate();
 
@@ -143,7 +145,7 @@ export const SidebarDrawer = () => {
                 {Object.keys(topicTree[key].subtopics).sort(sortfn).map(key2 =>
                   <ListItemButton sx={{ pl: 4 }} onClick={() => {
                     if (topicTree[key].subtopics[key2].locked) {
-                      alert("This subtopic is locked.");
+                      setError("This subtopic is locked.");
                       return;
                     }
                     navigate('/learn/' + key.replaceAll(' ', '-') + '/' + key2.replaceAll(' ', '-'));
@@ -180,12 +182,25 @@ export const SidebarDrawer = () => {
         {!shouldBeOpen && <IconButton className="borgir" onClick={toggleDrawer('left', true)} sx={{ position: "fixed", top: '1rem', left: '1rem', zIndex: 2000 }}><MenuIcon /></IconButton>}
         <Drawer
           anchor={'left'}
-          open={isOpen}
+          open={isOpen && !error}
           onClose={toggleDrawer('left', false)}
         >
           {list('left')}
         </Drawer>
       </React.Fragment>
+
+      <Modal show={error !== ""} onHide={() => setError("")}>
+        <Modal.Header closeButton>
+          <Modal.Title>Error</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>{error.replace("Error: ", "").replace("Firebase: ", "").trim()}</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setError("")}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      
     </div>
   );
 }

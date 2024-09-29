@@ -19,8 +19,6 @@ import { auth, createUserDB } from "../FirebaseClient"
 
 export default () => {
 
- 
-
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confPassword, setConfPassword] = useState<string>("");
