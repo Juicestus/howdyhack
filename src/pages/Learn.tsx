@@ -1,7 +1,7 @@
 // import Header from "../components/Header";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { Button, Card, Col, Container, Form, OverlayTrigger, Popover, Row, Table } from "react-bootstrap";
-import { Navigate, useBeforeUnload, useNavigate, useParams } from "react-router-dom";
+import { Navigate, useBeforeUnload, useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { auth, getTopic, getUserDB, updateSubtopic } from "../FirebaseClient";
 import { AuthContext } from "../components/AuthContext";
@@ -38,6 +38,8 @@ export default () => {
   const [fsmState, setFsmState] = useState(State.DECIDING_TASKS);
   const [mcqAnswers, setMcqAnswers] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const location = useLocation();
 
   useEffect(() => {
 
@@ -116,7 +118,7 @@ export default () => {
       }
     });
 
-  }, [user, setSubtopicTree, setThreadID, setMarkdown, setControlWidget, setFsmState]);
+  }, [user, setSubtopicTree, setThreadID, setMarkdown, setControlWidget, setFsmState, location]);
 
   useBeforeUnload(useCallback(async () => {
     if (user !== undefined && topicName !== undefined && subtopicName !== undefined) {

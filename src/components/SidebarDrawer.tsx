@@ -24,7 +24,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { Button, ListGroup, Modal } from "react-bootstrap";
 import LogoutIcon from '@mui/icons-material/Logout';
 import HomeIcon from '@mui/icons-material/Home';
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Check from "@mui/icons-material/Check";
 
 
@@ -35,6 +35,8 @@ type Anchor = 'left';
   }
 
 export const SidebarDrawer = () => {
+
+  const location = useLocation();
 
   const [error, setError] = React.useState<string>("");
 
@@ -148,7 +150,7 @@ export const SidebarDrawer = () => {
                       setError("This subtopic is locked.");
                       return;
                     }
-                    navigate('/learn/' + key.replaceAll(' ', '-') + '/' + key2.replaceAll(' ', '-'));
+                    navigate('/learn/' + key.replaceAll(' ', '-') + '/' + key2.replaceAll(' ', '-'), {});
                   }}>
                     <ListItemIcon>
                       {subtopicIcon(topicTree[key].subtopics[key2])}
@@ -176,7 +178,7 @@ export const SidebarDrawer = () => {
   }, [isOpen, ]); // forgive me ):
 
   return (
-    <div>
+    <div id={location.toString()}>
       <React.Fragment key={'left'}>
         {/* <Button onClick={toggleDrawer('left', true)}>{'left'}</Button> */}
         {!shouldBeOpen && <IconButton className="borgir" onClick={toggleDrawer('left', true)} sx={{ position: "fixed", top: '1rem', left: '1rem', zIndex: 2000 }}><MenuIcon /></IconButton>}
