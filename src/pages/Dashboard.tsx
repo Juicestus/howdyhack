@@ -65,7 +65,7 @@ export default () => {
       
       {/* <Header fluid/> */}
 
-      <p style={{marginBottom: "5rem"}}></p>
+      <p style={{ marginBottom: "4.6rem" }}></p>
 
       <Container style={{ maxWidth: "40rem" }} fluid>
 

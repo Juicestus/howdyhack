@@ -1,10 +1,10 @@
+import config from './config.json';
+
 const OpenAI = require("openai");
 
-// const OPENAI_API_KEY = "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"
-
 const openai = new OpenAI({
-  apiKey: OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true
+  apiKey: config.openAIConfig.apiKey,
+  dangerouslyAllowBrowser: true // its a hackathon so wtv but obv wouldnt do this in prod
 });
 
 const asstID = "asst_hHF31RYZMZsc5q5QF7PuXj9s";

@@ -75,7 +75,7 @@ export default () => {
             <FormControl sx={{ mr: "3%", mt: 0, mb: 2, width: '47%' }} variant="outlined" size="small">
               <InputLabel htmlFor="outlined">First Name</InputLabel>
               <OutlinedInput
-                error={email.length > 0}
+                error={false}
                 onChange={e => setFirstName(e.target.value)}
                 id="outlined"
                 label="First Name"
@@ -85,7 +85,7 @@ export default () => {
             <FormControl sx={{ ml: "3%", mr: 0, mt: 0, mb: 2, width: '47%' }} variant="outlined" size="small">
               <InputLabel htmlFor="outlined">Last Name</InputLabel>
               <OutlinedInput
-                error={email.length > 0}
+                error={false}
                 onChange={e => setLastName(e.target.value)}
                 id="outlined"
                 label="Last Name"

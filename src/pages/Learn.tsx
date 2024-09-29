@@ -119,7 +119,7 @@ export default () => {
   }, [user, setSubtopicTree, setThreadID, setMarkdown, setControlWidget, setFsmState]);
 
   useBeforeUnload(useCallback(async () => {
-    if (user !== undefined && topicName !== undefined || subtopicName !== undefined) {
+    if (user !== undefined && topicName !== undefined && subtopicName !== undefined) {
       await updateSubtopic(user?.uid || "", topicName || "", subtopicName || "", subtopicTree);
        // bruh too much safety for something that really cant happen
     }
@@ -186,6 +186,7 @@ export default () => {
 
 
   const explainTask = async () => {
+    beginLoading();
     if (!subtopicTree) { return; }
     if (currentTaskID >= (subtopicTree.tasks.length - 1)) {
       const sttlocal = subtopicTree;
@@ -197,7 +198,6 @@ export default () => {
         // Unlock the next one
         let unlocked = false;
         getUserDB(user.uid).then(d => {
-          stopLoading();
           Object.keys(d).map(k => {
             Object.keys(d[k].subtopics).map(sk => {
               if (!unlocked && d[k].subtopics[sk].locked) { /// sinful
@@ -217,14 +217,15 @@ export default () => {
     sendMessage(threadID, explainTaskPrompt(subtopicTree.tasks[taskID].name)).then(() => {
       beginResponse(threadID).then(run => {
         getResult(run, threadID).then(r => {
-          stopLoading();
           const exp = JSON.parse(r)["explanation"];
           let newMarkdown = "\n\n" + exp;
           setMarkdown(newMarkdown);
+          stopLoading();
+          setCurrentTaskID(taskID);
+          setFsmState(State.ASKING_QUESTION);
         });
       });
-      setCurrentTaskID(taskID);
-      setFsmState(State.ASKING_QUESTION);
+     
     });
   }
 
@@ -280,7 +281,7 @@ export default () => {
 
       {/* <Header fluid/> */}
 
-      <p style={{ marginBottom: "5rem" }}></p>
+      <p style={{ marginBottom: "4.6rem" }}></p>
 
       <Container fluid>
         <Row>
