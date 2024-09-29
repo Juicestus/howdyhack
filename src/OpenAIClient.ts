@@ -1,9 +1,9 @@
-import config from './config.json';
-
 const OpenAI = require("openai");
 
+// require('dotenv').config();
+
 const openai = new OpenAI({
-  apiKey: config.openAIConfig.apiKey,
+  apiKey: process.env.REACT_APP_OPENAI_API_KEY,
   dangerouslyAllowBrowser: true // its a hackathon so wtv but obv wouldnt do this in prod
 });
 

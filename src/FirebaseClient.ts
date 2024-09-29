@@ -2,10 +2,20 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 
-import config from './config.json';
 import { defaultUserData } from './data/Types';
 
-const firebaseConfig = config.firebaseConfig;
+// require('dotenv').config();
+
+const firebaseConfig = {
+    apiKey: process.env.REACT_APP_FB_API_KEY,
+    authDomain: process.env.REACT_APP_FB_AUTH_DOMAIN,
+    projectId: process.env.REACT_APP_FB_PROJECT_ID,
+    storageBucket: process.env.REACT_APP_FB_STORAGE_BUCKET,
+    messagingSenderId: process.env.REACT_APP_FB_MESSAGE_SENDER_ID,
+    appId: process.env.REACT_APP_FB_APP_ID,
+};
+
+console.log(firebaseConfig)
 
 firebase.initializeApp(firebaseConfig);
 
