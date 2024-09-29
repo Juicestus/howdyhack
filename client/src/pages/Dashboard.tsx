@@ -57,7 +57,7 @@ export default () => {
       <Container style={{ maxWidth: "40rem" }} fluid>
 
         <Card>
-          <Card.Header><h1>Howdy, {user?.displayName || "Ag"}!</h1></Card.Header>
+          <Card.Header><h1>Howdy {user?.displayName?.split(' ')[0] || ""}!</h1></Card.Header>
 
           <Card.Body> 
 

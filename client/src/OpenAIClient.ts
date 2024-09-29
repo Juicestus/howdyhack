@@ -1,6 +1,5 @@
 const OpenAI = require("openai");
 
-// const OPENAI_API_KEY = "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"
 
 const openai = new OpenAI({
   apiKey: OPENAI_API_KEY,
@@ -69,14 +68,14 @@ export const getResult = async (run: any, thread: any) => {
 
 export const getTasksPrompt = (subtopicName: string) => `Consider a student following your curriculum to learn Python. Please make a list of subtopics you would teach for "${subtopicName}". You can list as many or as few items as required for the topic as required. For each of these topics, consider if it would be better suited for either a multiple choice question or a coding challenge. Remember that introductory syntax topics are usually more suited for multiple choice questions. Return your list as a json object where the keys are these topics, and the values are either "multiple-choice" or "coding-challenge" representing what type of question best suits the topic.`;
 
-export const explainTaskPrompt = (taskName: string) => `For the topic "${taskName}" give an explanation of the topic. Encode in a json object with a single entry called "explanation" where the value is your explanation in a string`;
+export const explainTaskPrompt = (taskName: string) => `For the topic "${taskName}" give an explanation of the topic for Python. Encode in a json object with a single entry called "explanation" where the value is your explanation in a string. Your explaination will be treated as markdown, so feel free to use markdown syntax.`;
 
 export const askQuestionPrompt = (taskName: string, qType: string) => {
   if (qType === "multiple-choice") {
-    return `For the topic "${taskName}" create a multiple choice question with 4 possible responses. Format this question in json structure, where key "question" is the question as a string, and key "responses" holds an array of strings, representing the possible responses. Please do not include labels like A, B, C, D, etc. in the responses.`;
+    return `In Python, for the topic "${taskName}" create a multiple choice question with 4 possible responses. Format this question in json structure, where key "question" is the question as a string, and key "responses" holds an array of strings, representing the possible responses. Please do not include labels like A, B, C, D, etc. in the responses.`;
   } else {
-    return `Please write a coding challenge for the topic "${taskName}" for the student to answer. Format your response as a json object with a single entry "prompt" where the value is your challenge as a string.`; 
+    return `In Python, please write a coding challenge for the topic "${taskName}" for the student to answer. Format your response as a json object with a single entry "prompt" where the value is your challenge as a string. Make sure to give your question a markdown title.`; 
   }
 }
 
-export const checkAnswerPrompt = (userAnswer: string) => `Recall your previous question. The student answered "${userAnswer}". Please respond with a json object with field "correct" being a boolean to weather or not the question was correctly, and field "feedback" being a string of feedback on the answer.`;
+export const checkAnswerPrompt = (userAnswer: string) => `Recall your previous question. The student answered "${userAnswer}". Please respond with a json object with field "correct" being a boolean to weather or not the question was correctly, and field "feedback" being a string of feedback on the answer. Your feedback will be treated as markdown. Make sure to include either "correct" or "incorrect" in some bold form.`;

@@ -23,7 +23,9 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { ListGroup } from "react-bootstrap";
 import LogoutIcon from '@mui/icons-material/Logout';
+import HomeIcon from '@mui/icons-material/Home';
 import { useNavigate } from "react-router-dom";
+import Check from "@mui/icons-material/Check";
 
 
 type Anchor = 'left';
@@ -74,7 +76,8 @@ export const SidebarDrawer = () => {
       }
     }
     if (allCompleted) {
-      return <CheckCircleOutlineIcon />;
+      // return <CheckCircleOutlineIcon />;
+      return <Check />;
     }
     if (allLocked) {
       return <LockIcon />;
@@ -88,7 +91,8 @@ export const SidebarDrawer = () => {
       return <LockIcon />;
     }
     if (t.completed) {
-      return <CheckCircleOutlineIcon />;
+      // return <CheckCircleOutlineIcon />;
+      return <Check />;
     }
     return <AccessTimeIcon />;
   }
@@ -116,6 +120,7 @@ export const SidebarDrawer = () => {
           <ListItem>
             <Avatar alt="Remy Sharp" src={profilPicSrc()} className="mr-4"/>
             <ListItemText primary={user?.displayName?.split(' ')[0] || "Ol Rock"} />
+            <IconButton onClick={() => navigate('/dashboard')}> <HomeIcon/> </IconButton>
             <IconButton onClick={signOut}> <LogoutIcon/> </IconButton>
 
           </ListItem>
@@ -157,11 +162,20 @@ export const SidebarDrawer = () => {
     </Box>
   );
 
+  const [shouldBeOpen, setShouldBeOpen] = React.useState<boolean>(true); // sinful hack
+  React.useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => setShouldBeOpen(true), 0);
+    } else {
+      setTimeout(() => setShouldBeOpen(false), 200);
+    }
+  }, [isOpen, ]); // forgive me ):
+
   return (
     <div>
       <React.Fragment key={'left'}>
         {/* <Button onClick={toggleDrawer('left', true)}>{'left'}</Button> */}
-        {!isOpen && <IconButton onClick={toggleDrawer('left', true)} sx={{ position: "fixed", top: 0, left: 0, zIndex: 2000 }}><MenuIcon /></IconButton>}
+        {!shouldBeOpen && <IconButton className="borgir" onClick={toggleDrawer('left', true)} sx={{ position: "fixed", top: '1rem', left: '1rem', zIndex: 2000 }}><MenuIcon /></IconButton>}
         <Drawer
           anchor={'left'}
           open={isOpen}

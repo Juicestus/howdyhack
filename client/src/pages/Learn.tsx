@@ -34,7 +34,7 @@ export default () => {
   const [threadID, setThreadID] = useState(null);
 
   const [controlWidget, setControlWidget] = useState(<></>);
-  const [currentTaskID, setCurrentTaskID] = useState(-1);
+  const [currentTaskID, setCurrentTaskID] = useState<number>(-1);
   const [fsmState, setFsmState] = useState(State.DECIDING_TASKS);
   const [mcqAnswers, setMcqAnswers] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -67,6 +67,8 @@ export default () => {
             navigate('/');
           }
 
+          setCurrentTaskID(topic.subtopics[subtopicName].taskid ?? -1);
+
           if (topic.subtopics[subtopicName].tasks.length <= 0) {
 
             sendMessage(thread, getTasksPrompt(topic.subtopics[subtopicName].name)).then(() => {
@@ -91,12 +93,14 @@ export default () => {
                   setMarkdown(newMarkdown);
                   setSubtopicTree(topic.subtopics[subtopicName]);
 
+                  stopLoading();
                   setFsmState(State.EXPLAINING_TASKS);
                 });
               });
             });
           }
           else {
+
             let newMarkdown = "\n\n" + "The topics you will learn in this section are: \n\n";
             for (const tkey in topic.subtopics[subtopicName].tasks) {
               newMarkdown += `* ${topic.subtopics[subtopicName].tasks[tkey].name}\n`;
@@ -104,6 +108,7 @@ export default () => {
             setMarkdown(newMarkdown);
             setSubtopicTree(topic.subtopics[subtopicName]);
 
+            stopLoading();
             setFsmState(State.EXPLAINING_TASKS);
           }
         });
@@ -112,6 +117,13 @@ export default () => {
     });
 
   }, [user, setSubtopicTree, setThreadID, setMarkdown, setControlWidget, setFsmState]);
+
+  useBeforeUnload(useCallback(async () => {
+    if (user !== undefined && topicName !== undefined || subtopicName !== undefined) {
+      await updateSubtopic(user?.uid || "", topicName || "", subtopicName || "", subtopicTree);
+       // bruh too much safety for something that really cant happen
+    }
+  }, [subtopicTree, user]));
 
   const beginLoading = () => {
     console.log("Begin loading");
@@ -178,6 +190,7 @@ export default () => {
     if (currentTaskID >= (subtopicTree.tasks.length - 1)) {
       const sttlocal = subtopicTree;
       sttlocal.completed = true;
+      sttlocal.taskid = -1;
       if (user) {
         await updateSubtopic(user.uid, topicName || "", subtopicName || "", sttlocal);
 
@@ -200,6 +213,7 @@ export default () => {
       return;
     }
     const taskID = currentTaskID + 1;
+    console.log(taskID);
     sendMessage(threadID, explainTaskPrompt(subtopicTree.tasks[taskID].name)).then(() => {
       beginResponse(threadID).then(run => {
         getResult(run, threadID).then(r => {
@@ -260,10 +274,9 @@ export default () => {
   return (
     <>
 
-      {/* {user && topicName && subtopicName && !subtopicTree[topicName].subtopics[subtopicName].locked && <Navigate></Navigate>} */}
-
-      {/* <IconButton onClick={() => {}} sx={{ position: "fixed", top: 0, left: 0, zIndex: 2000 }}><MenuIcon/></IconButton> */}
       <SidebarDrawer />
+
+      {/* <h2 className="lernhead">Module {subtopicName?.split(' ')[0] || "0.0"} - {topicName?.split(' ').slice(1).join(" ") || "..."} - {subtopicName?.split(' ').slice(1).join(" ") || "..."}</h2> */}
 
       {/* <Header fluid/> */}
 
@@ -273,10 +286,11 @@ export default () => {
         <Row>
 
           <Col xs={6}>
-            <Card>
+            <Card className="ml-2">
               <Card.Header>Module {subtopicName?.split(' ')[0] || "0.0"} - {topicName?.split(' ').slice(1).join(" ") || "..."} - {subtopicName?.split(' ').slice(1).join(" ") || "..."}</Card.Header>
 
               <Card.Body style={{ height: '25.5rem', overflowY: 'auto' }}>
+              {/* <Card.Body style={{ height: '28rem', overflowY: 'auto' }}> */}
                 {
                   isLoading 
                   ? (<Loading/>)
@@ -288,7 +302,7 @@ export default () => {
           </Col>
 
           <Col xs={6}>
-            <Card>
+            <Card className="mr-2">
               <Card.Body style={{ height: '28rem', overflowY: 'auto' }}>
                 {/* {JSON.stringify(subtopicTree ?? "")} */}
                 {controlWidget}
