@@ -5,17 +5,19 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Button, Card, Col, Container, Form, OverlayTrigger, Popover, Row, Table } from "react-bootstrap";
+import { Button, Card, Col, Container, Form, Modal, OverlayTrigger, Popover, Row, Table } from "react-bootstrap";
 import { redirect, useBeforeUnload, useNavigate } from "react-router-dom";
 // import {Input} from "@nextui-org/react";
 // import { Input } from "@material-tailwind/react";
 
 import { auth } from "../FirebaseClient"
+import { isValidEmailAddress } from "./Create";
 
 export default () => {
 
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
 
   const signIn = async () => {
     console.log(email, password);
@@ -23,10 +25,8 @@ export default () => {
     try {
       await auth.signInWithEmailAndPassword(email , password);
       navigate("/");
-
-      console.log(auth.currentUser);
     } catch (error: any) {
-      alert(error.message);
+      setError(error.message);
     }
   };
 
@@ -43,8 +43,7 @@ export default () => {
   const handleMouseUpPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
   };
-  
-  
+
 
   return (
     <>
@@ -61,6 +60,7 @@ export default () => {
             <FormControl sx={{ mr: 1, mt: 0, mb: 1, width: '100%' }} variant="outlined" size="small">
               <InputLabel htmlFor="outlined">Email</InputLabel>
               <OutlinedInput
+                error={!isValidEmailAddress(email) && email.length > 0}
                 onChange={e => setEmail(e.target.value)}
                 id="outlined"
                 label="Email"
@@ -105,6 +105,20 @@ export default () => {
 
        
       </Container>
+
+      <Modal show={error !== ""} onHide={() => setError("")}>
+        <Modal.Header closeButton>
+          <Modal.Title>Error</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>{error.replace("Error: ", "").replace("Firebase: ", "").trim()}</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setError("")}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+
     </>
   );
 };

@@ -5,30 +5,38 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Button, Card, Col, Container, Form, OverlayTrigger, Popover, Row, Table } from "react-bootstrap";
+import { Button, Card, Col, Container, Form, Modal, OverlayTrigger, Popover, Row, Table } from "react-bootstrap";
 import { redirect, useBeforeUnload, useNavigate } from "react-router-dom";
 // import {Input} from "@nextui-org/react";
 // import { Input } from "@material-tailwind/react";
 
 import { auth, createUserDB } from "../FirebaseClient"
 
-export default () => {
-
-  const isValidEmailAddress = (emailAddress: string): boolean =>  {
+ export const isValidEmailAddress = (emailAddress: string): boolean =>  {
     const pattern = new RegExp(/^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i);
     return pattern.test(emailAddress);
   }
+
+export default () => {
+
+ 
 
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confPassword, setConfPassword] = useState<string>("");
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
+  const [error, setError] = useState<string>("");
 
   const createAccount = async () => {
 
+
     if (firstName.length <= 0 || lastName.length <= 0) {
-      alert("Error: Please fill in your first and last name");
+      setError("Error: Please fill in your first and last name");
+      return;
+    }
+    if (password !== confPassword) {
+      setError("Error: Passwords should match");
       return;
     }
 
@@ -37,12 +45,10 @@ export default () => {
       if (auth.currentUser) {
         await auth.currentUser.updateProfile({displayName: firstName + " " + lastName});
         createUserDB(auth.currentUser?.uid);
-      } else {
-        console.log("Oh shit! This isnt good.")
-      }
+      } 
       navigate("/");
     } catch (error: any) {
-      alert(error.message);
+      setError(error.message);
     }
   };
 
@@ -59,12 +65,14 @@ export default () => {
   const handleMouseUpPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
   };
+
   
   return (
     <>
       {/* <Header fluid/> */}
 
       <p style={{marginBottom: "5rem"}}></p>
+
 
       <Container style={{ maxWidth: "20rem" }} fluid>
 
@@ -164,6 +172,19 @@ export default () => {
 
        
       </Container>
+
+      <Modal show={error !== ""} onHide={() => setError("")}>
+        <Modal.Header closeButton>
+          <Modal.Title>Error</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>{error.replace("Error: ", "").replace("Firebase: ", "").trim()}</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setError("")}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
     </>
   );
 };
