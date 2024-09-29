@@ -22,6 +22,7 @@ export default () => {
 
     try {
       await auth.signInWithEmailAndPassword(email , password);
+      navigate("/");
 
       console.log(auth.currentUser);
     } catch (error: any) {
@@ -89,18 +90,15 @@ export default () => {
               />
             </FormControl>
 
-            <Row className="mt-2">
-              <Col xs={6}>
-                <Button variant="success" type="button" size="sm" className="login-btn" onClick={signIn}>
+            <div className="mt-2">
+                <Button variant="success" type="button" size="sm" className="login-btn" onClick={signIn} style={{marginRight: '3%'}}>
                   Log In
                 </Button>
-              </Col>
-              <Col xs={6}>
-                <Button variant="outline-success" type="button" size="sm" className="login-btn" onClick={() => navigate("/signup")}>
+
+                <Button variant="outline-success" type="button" size="sm" className="login-btn" onClick={() => navigate("/signup")} style={{marginLeft: '3%'}}>
                   Sign Up
                 </Button>
-              </Col>
-            </Row>
+              </div>
 
           </Card.Body>
         </Card>

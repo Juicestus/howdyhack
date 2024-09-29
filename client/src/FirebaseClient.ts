@@ -28,3 +28,23 @@ export const createUserDB = (uid: string) => {
   }
 
 }
+
+export const getUserDB = async (uid: string) => {
+  const data: any = {};
+  await db.collection(uid).get().then(q => {
+    q.forEach(doc => data[doc.id] = doc.data());
+  });
+  return data;
+}
+
+export const getTopic = async (uid: string, topicName: string) => {
+  return (await db.collection(uid).doc(topicName).get()).data();
+}
+
+export const updateSubtopic = async (uid: string, topicName: string, subtopicName: string, updatedSubtopic: any) => {
+  await db.collection(uid).doc(topicName).update({
+    subtopics: {
+      [subtopicName]: updatedSubtopic
+    }
+  });
+}

@@ -24,7 +24,7 @@ a {
 
 .login-btn {
     /* width: 6rem; */
-    width: 100%;
+    width: 47%;
   }
 
 .logout-btn {
@@ -33,4 +33,43 @@ a {
   font-size: .5rem;
   margin: 1rem;
   padding: -1rem 0rem;
+}
+
+.rmd {
+}
+
+.rmd h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+}
+
+.rmd h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.rmd h3 {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.rmd ul {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  list-style: disc outside none;
+}
+
+.rmd ul li {
+  margin-left: 2em;
+  display: list-item;
+  text-align: -webkit-match-parent;
+}
+ .rmd p { 
+  font-size: 1em;
+  font-weight: 400; 
+  white-space: pre-wrap;
+}
+
+.ok-btn {
+  width: 4rem;
 }

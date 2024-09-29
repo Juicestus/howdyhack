@@ -22,19 +22,25 @@ export default () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confPassword, setConfPassword] = useState<string>("");
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
 
   const createAccount = async () => {
+
+    if (firstName.length <= 0 || lastName.length <= 0) {
+      alert("Error: Please fill in your first and last name");
+      return;
+    }
+
     try {
       await auth.createUserWithEmailAndPassword(email , password);
-
       if (auth.currentUser) {
+        await auth.currentUser.updateProfile({displayName: firstName + " " + lastName});
         createUserDB(auth.currentUser?.uid);
       } else {
-        console.log("Oh shit!")
-
+        console.log("Oh shit! This isnt good.")
       }
-
-
+      navigate("/");
     } catch (error: any) {
       alert(error.message);
     }
@@ -54,8 +60,6 @@ export default () => {
     event.preventDefault();
   };
   
-  
-
   return (
     <>
       {/* <Header fluid/> */}
@@ -67,6 +71,26 @@ export default () => {
         <Card>
           <Card.Header>Login</Card.Header>
           <Card.Body>
+
+            <FormControl sx={{ mr: "3%", mt: 0, mb: 2, width: '47%' }} variant="outlined" size="small">
+              <InputLabel htmlFor="outlined">First Name</InputLabel>
+              <OutlinedInput
+                error={email.length > 0}
+                onChange={e => setFirstName(e.target.value)}
+                id="outlined"
+                label="First Name"
+              />
+            </FormControl>
+
+            <FormControl sx={{ ml: "3%", mr: 0, mt: 0, mb: 2, width: '47%' }} variant="outlined" size="small">
+              <InputLabel htmlFor="outlined">Last Name</InputLabel>
+              <OutlinedInput
+                error={email.length > 0}
+                onChange={e => setLastName(e.target.value)}
+                id="outlined"
+                label="Last Name"
+              />
+            </FormControl>
 
             <FormControl sx={{ mr: 1, mt: 0, mb: 1, width: '100%' }} variant="outlined" size="small">
               <InputLabel htmlFor="outlined">Email</InputLabel>
@@ -125,19 +149,15 @@ export default () => {
               />
             </FormControl>
 
-
-            <Row className="mt-2">
-              <Col xs={6}>
-                <Button variant="outline-success" type="button" size="sm" className="login-btn" onClick={() => navigate("/login")}>
+              <div className="mt-2">
+                <Button variant="outline-success" type="button" size="sm" className="login-btn" onClick={() => navigate("/login")} style={{marginRight: '3%'}}>
                   Log In
                 </Button>
-              </Col>
-              <Col xs={6}>
-                <Button variant="success" type="button" size="sm" className="login-btn" onClick={createAccount}>
+
+                <Button variant="success" type="button" size="sm" className="login-btn" onClick={createAccount} style={{marginLeft: '3%'}}>
                   Sign Up
                 </Button>
-              </Col>
-            </Row>
+              </div>
 
           </Card.Body>
         </Card>
